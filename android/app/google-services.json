@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "631355669588",
+    "project_id": "darpan-76fb4",
+    "storage_bucket": "darpan-76fb4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:631355669588:android:aaa41d55ffb2744fa6c1c1",
+        "android_client_info": {
+          "package_name": "com.example.darpan"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAnB5e2-xy_vlFwXLR6LU-HFYaT-5c0GUg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
