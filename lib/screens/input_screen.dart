@@ -16,18 +16,19 @@ class _InputScreenState extends State<InputScreen> {
   final _completedController = TextEditingController(text: '0');
   final _teamSizeController = TextEditingController(text: '0');
   final _selfInitiatedController = TextEditingController(text: '0');
-
   final _q1Controller = TextEditingController(text: '0');
   final _q2Controller = TextEditingController(text: '0');
   final _q3Controller = TextEditingController(text: '0');
+  final _monthsPromoController = TextEditingController(text: '0');
+  final _monthsGrowthController = TextEditingController(text: '0');
+  final _opportunitiesController = TextEditingController(text: '0');
 
   String _impact = 'Only me';
   bool _isLoading = false;
 
   void _submit() async {
-    // Basic validation
-    if (_ownedController.text.isEmpty || 
-        _completedController.text.isEmpty || 
+    if (_ownedController.text.isEmpty ||
+        _completedController.text.isEmpty ||
         _teamSizeController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill in all required fields')),
@@ -49,29 +50,20 @@ class _InputScreenState extends State<InputScreen> {
         ],
         selfInitiatedProjects: int.tryParse(_selfInitiatedController.text) ?? 0,
         impactBucket: _impact,
+        monthsSinceLastPromotion: int.tryParse(_monthsPromoController.text) ?? 0,
+        monthsSinceLastGrowth: int.tryParse(_monthsGrowthController.text) ?? 0,
+        opportunitiesReceived: int.tryParse(_opportunitiesController.text) ?? 0,
       );
 
-      // Attempt to save to Firebase, but don't let it block navigation if it fails
       try {
         await FirebaseService().saveInput(input).timeout(const Duration(seconds: 3));
       } catch (e) {
         debugPrint('Firebase save failed: $e');
-        // We continue anyway so the user can see their results
       }
 
-      // Run calculation
-      final result = SimulationEngine().calculatePerformance(
-        owned: input.projectsOwned,
-        completed: input.projectsCompleted,
-        teamSize: input.avgTeamSize,
-        projectsPerQuarter: input.projectsPerQuarter,
-        selfInitiated: input.selfInitiatedProjects,
-        impactBucket: input.impactBucket,
-      );
+      final result = SimulationEngine().analyze(input);
 
       if (!mounted) return;
-
-      // Go to result screen
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -80,7 +72,7 @@ class _InputScreenState extends State<InputScreen> {
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error running analysis: $e')),
+        SnackBar(content: Text('Error: $e')),
       );
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -98,7 +90,6 @@ class _InputScreenState extends State<InputScreen> {
             _numberField('Projects Owned', _ownedController),
             _numberField('Projects Completed', _completedController),
             _numberField('Average Team Size', _teamSizeController),
-
             const SizedBox(height: 12),
             const Text('Projects per Quarter', style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
@@ -111,9 +102,7 @@ class _InputScreenState extends State<InputScreen> {
                 Expanded(child: _numberField('Q3', _q3Controller)),
               ],
             ),
-
             _numberField('Self-Initiated Projects', _selfInitiatedController),
-
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
               value: _impact,
@@ -129,20 +118,21 @@ class _InputScreenState extends State<InputScreen> {
               ],
               onChanged: (value) => setState(() => _impact = value!),
             ),
-
+            const SizedBox(height: 20),
+            const Text('Promotion & growth', style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            _numberField('Months since last promotion', _monthsPromoController),
+            _numberField('Months since last growth / raise', _monthsGrowthController),
+            _numberField('Opportunities received', _opportunitiesController),
             const SizedBox(height: 32),
             SizedBox(
               width: double.infinity,
               height: 50,
               child: ElevatedButton(
                 onPressed: _isLoading ? null : _submit,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).primaryColor,
-                  foregroundColor: Colors.white,
-                ),
-                child: _isLoading 
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text('Run Analysis', style: TextStyle(fontSize: 16)),
+                child: _isLoading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text('Run Analysis', style: TextStyle(fontSize: 16)),
               ),
             ),
           ],

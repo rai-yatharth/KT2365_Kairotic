@@ -4,23 +4,23 @@ import 'screens/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  
   try {
     await Firebase.initializeApp();
   } catch (e) {
-    debugPrint('Firebase init failed: $e');
+    debugPrint('Firebase initialization failed: $e');
   }
 
-  runApp(const DarpanApp());
+  runApp(const MyApp());
 }
 
-class DarpanApp extends StatelessWidget {
-  const DarpanApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Darpaṇ',
+      title: 'Darpan',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
