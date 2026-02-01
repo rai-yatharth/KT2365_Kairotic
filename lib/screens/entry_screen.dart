@@ -135,12 +135,12 @@ class _EntryScreenState extends State<EntryScreen> {
                   ),
                   const SizedBox(height: 80),
                   _buildEntryButton(
-                    text: 'Employee',
+                    text: 'Enter the upside down as Employee',
                     onPressed: () => _showIdDialog(context, isHR: false),
                   ),
                   const SizedBox(height: 24),
                   _buildEntryButton(
-                    text: 'HR',
+                    text: 'Enter the upside down as HR',
                     onPressed: () => _showIdDialog(context, isHR: true),
                   ),
                 ],
@@ -171,7 +171,8 @@ class _EntryScreenState extends State<EntryScreen> {
       ),
       child: Text(
         text.toUpperCase(),
-        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1.2),
+        textAlign: TextAlign.center,
+        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.2),
       ),
     );
   }

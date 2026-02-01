@@ -54,11 +54,17 @@ class _ResultScreenState extends State<ResultScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _buildScoreCard(),
+            const SizedBox(height: 32),
+            const Text(
+              'GROWTH TRAJECTORY',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1.2),
+            ),
             const SizedBox(height: 24),
-            _buildRadarChart(),
-            const SizedBox(height: 24),
+            _buildNeonLineChart(),
+            const SizedBox(height: 32),
             _buildPromotionComparison(),
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
             _distortionBox(),
             if (widget.employeeId != null) _buildFeedbackSection(),
           ],
@@ -70,6 +76,7 @@ class _ResultScreenState extends State<ResultScreen> {
   Widget _buildScoreCard() {
     return Card(
       color: Colors.grey[900],
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -95,44 +102,62 @@ class _ResultScreenState extends State<ResultScreen> {
     );
   }
 
-  Widget _buildRadarChart() {
+  Widget _buildNeonLineChart() {
     return Container(
-      height: 300,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: Colors.grey[900], borderRadius: BorderRadius.circular(12)),
-      child: Column(
-        children: [
-          const Text('PERFORMANCE DIMENSIONS', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 20),
-          Expanded(
-            child: RadarChart(
-              RadarChartData(
-                dataSets: [
-                  RadarDataSet(
-                    fillColor: Colors.redAccent.withOpacity(0.3),
-                    borderColor: Colors.redAccent,
-                    entryRadius: 3,
-                    dataEntries: [
-                      RadarEntry(value: widget.result.merit),
-                      RadarEntry(value: 1 - widget.result.structuralFriction),
-                      RadarEntry(value: widget.result.idealScore),
-                      RadarEntry(value: widget.result.realScore),
-                    ],
-                  ),
-                ],
-                radarBackgroundColor: Colors.transparent,
-                gridBorderData: const BorderSide(color: Color(0xFF424242), width: 2),
-                tickBorderData: const BorderSide(color: Colors.white12, width: 2),
-                ticksTextStyle: const TextStyle(color: Colors.white54, fontSize: 10),
-                getTitle: (index, angle) {
-                  const titles = ['Merit', 'Agency', 'Ideal', 'Real'];
-                  return RadarChartTitle(text: titles[index], angle: angle);
+      height: 250,
+      padding: const EdgeInsets.only(right: 20, top: 10),
+      child: LineChart(
+        LineChartData(
+          gridData: FlGridData(
+            show: true,
+            drawVerticalLine: false,
+            getDrawingHorizontalLine: (value) => FlLine(color: Colors.white10, strokeWidth: 1),
+          ),
+          titlesData: FlTitlesData(
+            show: true,
+            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                getTitlesWidget: (value, meta) {
+                  if (value == 0) return const Text('PAST', style: TextStyle(color: Colors.white54, fontSize: 10));
+                  if (value == 1) return const Text('PRESENT', style: TextStyle(color: Colors.white54, fontSize: 10));
+                  return const SizedBox();
                 },
-                titleTextStyle: const TextStyle(color: Colors.white70, fontSize: 12),
+              ),
+            ),
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                interval: 0.2,
+                getTitlesWidget: (value, meta) => Text('${(value * 100).toInt()}%', style: const TextStyle(color: Colors.white54, fontSize: 10)),
               ),
             ),
           ),
-        ],
+          borderData: FlBorderData(show: false),
+          minX: 0, maxX: 1, minY: 0, maxY: 1,
+          lineBarsData: [
+            LineChartBarData(
+              spots: [const FlSpot(0, 0), FlSpot(1, widget.result.idealScore)],
+              isCurved: true,
+              color: Colors.cyanAccent,
+              barWidth: 4,
+              isStrokeCapRound: true,
+              dotData: const FlDotData(show: true),
+              belowBarData: BarAreaData(show: true, color: Colors.cyanAccent.withOpacity(0.1)),
+            ),
+            LineChartBarData(
+              spots: [const FlSpot(0, 0), FlSpot(1, widget.result.realScore)],
+              isCurved: true,
+              color: Colors.redAccent,
+              barWidth: 4,
+              isStrokeCapRound: true,
+              dotData: const FlDotData(show: true),
+              belowBarData: BarAreaData(show: true, color: Colors.redAccent.withOpacity(0.1)),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -144,11 +169,27 @@ class _ResultScreenState extends State<ResultScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Row(
+            children: [
+              Container(width: 12, height: 12, color: Colors.cyanAccent),
+              const SizedBox(width: 8),
+              const Text('IDEAL CONDITION', style: TextStyle(color: Colors.white70, fontSize: 12)),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Container(width: 12, height: 12, color: Colors.redAccent),
+              const SizedBox(width: 8),
+              const Text('REAL CONDITION', style: TextStyle(color: Colors.white70, fontSize: 12)),
+            ],
+          ),
+          const SizedBox(height: 24),
           const Text('PROMOTION PROBABILITY', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
           _row('Ideal (Merit-Only)', _pct(widget.result.idealPromotionProbability)),
           const SizedBox(height: 8),
-          LinearProgressIndicator(value: widget.result.idealPromotionProbability, backgroundColor: Colors.white10, color: Colors.blue),
+          LinearProgressIndicator(value: widget.result.idealPromotionProbability, backgroundColor: Colors.white10, color: Colors.cyanAccent),
           const SizedBox(height: 16),
           _row('Real (Systemic)', _pct(widget.result.realPromotionProbability)),
           const SizedBox(height: 8),

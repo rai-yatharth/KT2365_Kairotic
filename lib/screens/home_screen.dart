@@ -28,7 +28,7 @@ class HomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               const Text(
-                'A mirror for promotion fairness',
+                'A mirror for promotion fairness.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16,
