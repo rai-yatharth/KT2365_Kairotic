@@ -7,6 +7,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -16,14 +17,18 @@ class HomeScreen extends StatelessWidget {
               const Text(
                 'Darpan',
                 style: TextStyle(
-                  fontSize: 48,
+                  fontSize: 64,
                   fontWeight: FontWeight.bold,
-                  letterSpacing: 1.2,
+                  color: Colors.redAccent,
+                  letterSpacing: 4,
+                  shadows: [
+                    Shadow(blurRadius: 10, color: Colors.red, offset: Offset(2, 2)),
+                  ],
                 ),
               ),
               const SizedBox(height: 8),
               const Text(
-                'The mirror to a better world',
+                'A mirror for promotion fairness',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16,
@@ -37,18 +42,21 @@ class HomeScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => const InputScreen(),
+                      builder: (_) => const InputScreen(employeeId: 'temp_id'),
                     ),
                   );
                 },
                 style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  foregroundColor: Colors.redAccent,
+                  side: const BorderSide(color: Colors.redAccent, width: 2),
                   minimumSize: const Size(double.infinity, 56),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(4),
                   ),
                 ),
                 child: const Text(
-                  'Run Mirror Analysis',
+                  'RUN MIRROR ANALYSIS',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),

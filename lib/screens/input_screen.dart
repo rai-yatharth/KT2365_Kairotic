@@ -5,7 +5,9 @@ import '../services/simulation_engine.dart';
 import 'result_screen.dart';
 
 class InputScreen extends StatefulWidget {
-  const InputScreen({super.key});
+  final String employeeId;
+
+  const InputScreen({super.key, required this.employeeId});
 
   @override
   State<InputScreen> createState() => _InputScreenState();
@@ -56,7 +58,7 @@ class _InputScreenState extends State<InputScreen> {
       );
 
       try {
-        await FirebaseService().saveInput(input).timeout(const Duration(seconds: 3));
+        await FirebaseService().saveEmployeeData(widget.employeeId, input.toMap()).timeout(const Duration(seconds: 3));
       } catch (e) {
         debugPrint('Firebase save failed: $e');
       }
@@ -67,7 +69,7 @@ class _InputScreenState extends State<InputScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => ResultScreen(result: result),
+          builder: (_) => ResultScreen(result: result, employeeId: widget.employeeId),
         ),
       );
     } catch (e) {
@@ -82,60 +84,79 @@ class _InputScreenState extends State<InputScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Enter Performance Data')),
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        title: const Text('Enter Performance Data', style: TextStyle(color: Colors.redAccent)),
+        backgroundColor: Colors.black,
+        iconTheme: const IconThemeData(color: Colors.redAccent),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            _numberField('Projects Owned', _ownedController),
-            _numberField('Projects Completed', _completedController),
-            _numberField('Average Team Size', _teamSizeController),
-            const SizedBox(height: 12),
-            const Text('Projects per Quarter', style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(child: _numberField('Q1', _q1Controller)),
-                const SizedBox(width: 8),
-                Expanded(child: _numberField('Q2', _q2Controller)),
-                const SizedBox(width: 8),
-                Expanded(child: _numberField('Q3', _q3Controller)),
-              ],
+        child: Theme(
+          data: ThemeData.dark().copyWith(
+            primaryColor: Colors.redAccent,
+            colorScheme: const ColorScheme.dark(primary: Colors.redAccent),
+            inputDecorationTheme: const InputDecorationTheme(
+              labelStyle: TextStyle(color: Colors.redAccent),
+              enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
+              focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.redAccent)),
             ),
-            _numberField('Self-Initiated Projects', _selfInitiatedController),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
-              value: _impact,
-              decoration: const InputDecoration(
-                labelText: 'Impact Scope',
-                border: OutlineInputBorder(),
+          ),
+          child: Column(
+            children: [
+              _numberField('Projects Owned', _ownedController),
+              _numberField('Projects Completed', _completedController),
+              _numberField('Average Team Size', _teamSizeController),
+              const SizedBox(height: 12),
+              const Text('Projects per Quarter', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(child: _numberField('Q1', _q1Controller)),
+                  const SizedBox(width: 8),
+                  Expanded(child: _numberField('Q2', _q2Controller)),
+                  const SizedBox(width: 8),
+                  Expanded(child: _numberField('Q3', _q3Controller)),
+                ],
               ),
-              items: const [
-                DropdownMenuItem(value: 'Only me', child: Text('Only me')),
-                DropdownMenuItem(value: 'My team', child: Text('My team')),
-                DropdownMenuItem(value: 'Multiple teams', child: Text('Multiple teams')),
-                DropdownMenuItem(value: 'External users', child: Text('External users')),
-              ],
-              onChanged: (value) => setState(() => _impact = value!),
-            ),
-            const SizedBox(height: 20),
-            const Text('Promotion & growth', style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            _numberField('Months since last promotion', _monthsPromoController),
-            _numberField('Months since last growth / raise', _monthsGrowthController),
-            _numberField('Opportunities received', _opportunitiesController),
-            const SizedBox(height: 32),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: _isLoading ? null : _submit,
-                child: _isLoading
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text('Run Analysis', style: TextStyle(fontSize: 16)),
+              _numberField('Self-Initiated Projects', _selfInitiatedController),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                value: _impact,
+                dropdownColor: Colors.grey[900],
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  labelText: 'Impact Scope',
+                  border: OutlineInputBorder(),
+                ),
+                items: const [
+                  DropdownMenuItem(value: 'Only me', child: Text('Only me')),
+                  DropdownMenuItem(value: 'My team', child: Text('My team')),
+                  DropdownMenuItem(value: 'Multiple teams', child: Text('Multiple teams')),
+                  DropdownMenuItem(value: 'External users', child: Text('External users')),
+                ],
+                onChanged: (value) => setState(() => _impact = value!),
               ),
-            ),
-          ],
+              const SizedBox(height: 20),
+              const Text('Promotion & growth', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+              const SizedBox(height: 8),
+              _numberField('Months since last promotion', _monthsPromoController),
+              _numberField('Months since last growth / raise', _monthsGrowthController),
+              _numberField('Opportunities received', _opportunitiesController),
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: _isLoading ? null : _submit,
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent, foregroundColor: Colors.black),
+                  child: _isLoading
+                      ? const CircularProgressIndicator(color: Colors.black)
+                      : const Text('Run Analysis', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -147,9 +168,9 @@ class _InputScreenState extends State<InputScreen> {
       child: TextField(
         controller: controller,
         keyboardType: TextInputType.number,
+        style: const TextStyle(color: Colors.white),
         decoration: InputDecoration(
           labelText: label,
-          border: const OutlineInputBorder(),
         ),
       ),
     );
